@@ -12,8 +12,10 @@
 #include <vector>
 #include <sstream>
 #include <sys/stat.h>
+#include <algorithm>
 
 using namespace std;
+
 
 /*
  * Concat file path
@@ -38,11 +40,10 @@ bool ifRawCommand(const string &command) {
         return true;
 }
 
-
 /* Return -1 if cannot exec
  * Return envnum if can exec
  * */
-int ifexecCommand(vector<string> env_list, const string &command) {
+int ifExecCommand(vector<string> env_list, const string &command) {
 
     for (int i = 0; i < env_list.size(); i++) {
         struct stat sb;
@@ -59,7 +60,7 @@ int ifexecCommand(vector<string> env_list, const string &command) {
  * Return 1 if can exec
  * Return -1 if not
  */
-int ifexecCommand(const string &command) {
+int ifExecCommand(const string &command) {
     struct stat sb;
     if (stat(command.c_str(), &sb) == 0 && sb.st_mode & S_IXUSR)
         return 1;
@@ -78,7 +79,6 @@ vector<string> stringSplit(const string &str, const char symbol) {
     return container;
 }
 
-
 /*
  * Should be added into constructor
  */
@@ -87,15 +87,14 @@ void loadEnv() {
     string env_str(env);
     vector<string> env_list = stringSplit(env_str, ':');
     string command = "/bin/ls";
-    int commandCheck = ifRawCommand(command) ? ifexecCommand(env_list, command) : ifexecCommand(command);
+    int commandCheck = ifRawCommand(command) ? ifExecCommand(env_list, command) : ifExecCommand(command);
     if(commandCheck==-1)
         cout<<"Command "<<command<<" not found"<<endl;
     else
         cout<<pathConcat(env_list[commandCheck], command); //execute
-    //int where = ifexecCommand(env_list, "git"); //whereis command is good
+    //int where = ifExecCommand(env_list, "git"); //whereis command is good
     return;
 }
-
 
 void basicShell(std::string input) {
     pid_t fpid;
@@ -129,8 +128,33 @@ void testShell() {
     }
 }
 
-int main() {
+vector<string> spaceHandle(const string& inputCommand){
+    vector<string> escape_pos;
+    /*string::const_iterator it = inputCommand.begin();
+    string::const_iterator it_last = it;
+    while(it!=inputCommand.end()){
+        if(*it=='\\') {
+            if (it + 1 != inputCommand.end())
+                if (*(it+1) == ' ')
+                    formatInput.erase(it++);
+        }
+        else if(*it==' ' && *(++it)!=' ') {
 
-    loadEnv();
+        } else{
+            it++;
+        }
+    }*/
+    std::istringstream iss(inputCommand);
+    for(std::string s; iss >> s; )
+        escape_pos.push_back(s);
+    return escape_pos;
+}
+
+int main() {
+    char es[2014];
+    std::cin.getline(es, 1024);
+    string a(es);
+    vector<string> escape_pos = spaceHandle(a);;
+    //string real = spaceHandle(a);
     return 0;
 }
