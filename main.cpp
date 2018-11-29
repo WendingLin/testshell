@@ -88,10 +88,10 @@ void loadEnv() {
     vector<string> env_list = stringSplit(env_str, ':');
     string command = "/bin/ls";
     int commandCheck = ifRawCommand(command) ? ifExecCommand(env_list, command) : ifExecCommand(command);
-    if(commandCheck==-1)
-        cout<<"Command "<<command<<" not found"<<endl;
+    if (commandCheck == -1)
+        cout << "Command " << command << " not found" << endl;
     else
-        cout<<pathConcat(env_list[commandCheck], command); //execute
+        cout << pathConcat(env_list[commandCheck], command); //execute
     //int where = ifExecCommand(env_list, "git"); //whereis command is good
     return;
 }
@@ -128,33 +128,53 @@ void testShell() {
     }
 }
 
-vector<string> spaceHandle(const string& inputCommand){
-    vector<string> escape_pos;
-    /*string::const_iterator it = inputCommand.begin();
-    string::const_iterator it_last = it;
-    while(it!=inputCommand.end()){
-        if(*it=='\\') {
-            if (it + 1 != inputCommand.end())
-                if (*(it+1) == ' ')
-                    formatInput.erase(it++);
-        }
-        else if(*it==' ' && *(++it)!=' ') {
+void backSlashReplace(vector<string>& input_args){
+    string regex = "\\ ";
+    for(size_t i = 0; i<input_args.size();i ++){
+        if (input_args[i].size()<2)
+            continue;
 
-        } else{
-            it++;
+
+    }
+}
+
+vector<string> inputHandle(const string &input_command) {
+    vector<string> input_args;
+    size_t start = 0;
+    size_t length = 0;
+    bool if_scanstr = false;
+    for (size_t i = 0; i < input_command.size(); i++) {
+        if (if_scanstr) {
+            if (input_command[i] == ' ') {
+                if (input_command[i - 1] == '\\')
+                    length++;
+                else {
+                    input_args.push_back(input_command.substr(start, length));
+                    if_scanstr = false;
+                }
+            } else {
+                length++;
+            }
+        } else {
+            if (input_command[i] == ' ') {
+                continue;
+            } else {
+                start = i;
+                length = 1;
+                if_scanstr = true;
+            }
         }
-    }*/
-    std::istringstream iss(inputCommand);
-    for(std::string s; iss >> s; )
-        escape_pos.push_back(s);
-    return escape_pos;
+    }
+    if (if_scanstr)
+        input_args.push_back(input_command.substr(start, length));
+    return input_args;
 }
 
 int main() {
     char es[2014];
     std::cin.getline(es, 1024);
     string a(es);
-    vector<string> escape_pos = spaceHandle(a);;
+    vector<string> input_args = inputHandle(a);;
     //string real = spaceHandle(a);
     return 0;
 }
