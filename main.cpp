@@ -9,48 +9,28 @@
 #include <stdio.h>
 #include <sys/wait.h>
 #include <cstdlib>
+#include <vector>
+#include <sstream>
 
 using namespace std;
 
-/*
-    pid_t child;
-    test("USER");
 
-    int i=0;
-
-    child = fork();
-    if (child < 0) {
-
-        printf("create failed!\n");
-
-        exit(1);
-
-    } else if (0 == child) {
-
-        printf("this is the child process pid= %d\n", getpid());
-        for (i = 0; i < 5; i++) {
-
-            printf("this is the child process print %d !\n", i + 1);
-
-        }
-        printf("the child end\n");
-
-    } else {
-
-        printf("this is the father process, ppid=%d\n", getppid());
-
-        printf("father wait the child end\n");
-
-        wait(&child);
-
-        printf("father end\n");
-
+vector<string> stringSplit(const string &str, const char symbol){
+    vector<string> container;
+    stringstream ss(str);
+    while(ss.good()){
+        string buf;
+        getline(ss, buf, symbol);
+        container.push_back(buf);
     }
-
+    return container;
 }
-*/
 
-
+void loadenv(){
+    char* env = getenv("PATH");
+    string env_str(env);
+    vector<string> env_list = stringSplit(env_str, ':');
+}
 
 void basic_shell(std::string input){
     pid_t fpid;
@@ -61,9 +41,10 @@ void basic_shell(std::string input){
     else if (fpid == 0) {
         char *argv[] = { "-l", NULL};
         char *envp[] = {NULL};
-        execve("/bin/ls", argv, envp);
+        execve("ls", argv, envp);
     } else {
-        waitpid(fpid, &status, 0);
+        //kill(fpid, SIGABRT);
+        waitpid(-1, &status, 0);
         int exit_status = WIFEXITED(status);
         int signal_status = WIFSIGNALED(status);
         if(signal_status)
@@ -74,15 +55,18 @@ void basic_shell(std::string input){
 }
 
 
-
-int main() {
-    while(true){
+void testshell(){
+        while(true){
         std::cout<<"myShell$ ";
         char buf[1024];
         std::cin.getline(buf, 1024);
         std::string input(buf);
         basic_shell(input);
     }
+}
 
+int main() {
+
+    loadenv();
     return 0;
 }

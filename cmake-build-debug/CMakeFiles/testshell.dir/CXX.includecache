@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/lycoris/CLionProjects/testshell/main.cpp
+/home/lycoris/CLionProjects/shelltest/main.cpp
 iostream
 -
 unistd.h
@@ -16,5 +16,9 @@ stdio.h
 sys/wait.h
 -
 cstdlib
+-
+vector
+-
+sstream
 -
 
