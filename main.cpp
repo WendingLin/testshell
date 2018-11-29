@@ -129,12 +129,19 @@ void testShell() {
 }
 
 void backSlashReplace(vector<string>& input_args){
-    string regex = "\\ ";
     for(size_t i = 0; i<input_args.size();i ++){
         if (input_args[i].size()<2)
             continue;
-
-
+        else{
+            for(string::iterator it = input_args[i].begin(); it!=input_args[i].end();it++){
+                if(it+1==input_args[i].end())
+                    break;
+                else{
+                    if(*it=='\\' && *(it+1)==' ')
+                        input_args[i].erase(it);
+                }
+            }
+        }
     }
 }
 
@@ -167,6 +174,7 @@ vector<string> inputHandle(const string &input_command) {
     }
     if (if_scanstr)
         input_args.push_back(input_command.substr(start, length));
+    backSlashReplace(input_args);
     return input_args;
 }
 
