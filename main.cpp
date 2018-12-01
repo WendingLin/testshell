@@ -233,7 +233,7 @@ bool varCheck(const string &var_name) {
 
 int main() {
     //runShell();
-    int change_status = changeDir("..");
+    //int change_status = changeDir("..");
 
     return 0;
 }
