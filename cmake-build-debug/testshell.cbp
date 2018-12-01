@@ -84,6 +84,12 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/home/lycoris/CLionProjects/shelltest/Command.h">
+			<Option target="testshell"/>
+		</Unit>
+		<Unit filename="/home/lycoris/CLionProjects/shelltest/Shell.h">
+			<Option target="testshell"/>
+		</Unit>
 		<Unit filename="/home/lycoris/CLionProjects/shelltest/main.cpp">
 			<Option target="testshell"/>
 		</Unit>

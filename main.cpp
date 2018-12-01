@@ -13,6 +13,8 @@
 #include <sstream>
 #include <sys/stat.h>
 #include <algorithm>
+#include <cstring>
+#include <map>
 
 using namespace std;
 
@@ -103,9 +105,9 @@ void basicShell(std::string input) {
     if (fpid < 0)
         printf("error in fork!");
     else if (fpid == 0) {
-        char *argv[] = {"-l", NULL};
-        char *envp[] = {NULL};
-        execve("ls", argv, envp);
+        char *argv[] = {"ls", "-l", NULL};
+        char *envp[] = {0, NULL};
+        execve("/bin/ls", argv, envp);
     } else {
         //kill(fpid, SIGABRT);
         waitpid(-1, &status, 0);
@@ -128,16 +130,18 @@ void testShell() {
     }
 }
 
-void backSlashReplace(vector<string>& input_args){
-    for(size_t i = 0; i<input_args.size();i ++){
-        if (input_args[i].size()<2)
+
+/* Remove the redundant back slash*/
+void backSlashReplace(vector<string> &input_args) {
+    for (size_t i = 0; i < input_args.size(); i++) {
+        if (input_args[i].size() < 2)
             continue;
-        else{
-            for(string::iterator it = input_args[i].begin(); it!=input_args[i].end();it++){
-                if(it+1==input_args[i].end())
+        else {
+            for (string::iterator it = input_args[i].begin(); it != input_args[i].end(); it++) {
+                if (it + 1 == input_args[i].end())
                     break;
-                else{
-                    if(*it=='\\' && *(it+1)==' ')
+                else {
+                    if (*it == '\\' && *(it + 1) == ' ')
                         input_args[i].erase(it);
                 }
             }
@@ -145,6 +149,10 @@ void backSlashReplace(vector<string>& input_args){
     }
 }
 
+/*
+ * First Split the string
+ * Then remove the back slash
+ */
 vector<string> inputHandle(const string &input_command) {
     vector<string> input_args;
     size_t start = 0;
@@ -178,11 +186,54 @@ vector<string> inputHandle(const string &input_command) {
     return input_args;
 }
 
+/*
+ * Step 3 cd
+ * Input: dir name
+ * Func: change current path & env
+ * Output: if change successfully
+ */
+int changeDir(const string &dir_name) {
+    //~
+    int change_status = chdir(dir_name.c_str());
+    string curr_dir(get_current_dir_name());
+    return change_status;
+}
+
+/*
+ * Step 3 Variable Check Helper
+ * Input: ascii
+ * Output: if true
+ * Func: check if ascii in the range
+ * corner included
+ */
+bool inAsciiRange(const char &var_char, int left, int right) {
+    int ascii = (int) var_char;
+    return ascii >= left && ascii <= right;
+}
+
+
+/*
+ *  Step 3 Variable Check
+ *  input : var name
+ *  output: if true
+ *  Func: Use ASCII to check the var
+ */
+
+bool varCheck(const string &var_name) {
+    for (string::const_iterator it = var_name.begin(); it != var_name.end(); it++) {
+        /* 0~9 A~Z a~z _*/
+        if (inAsciiRange(*it, 48, 57) || inAsciiRange(*it, 65, 90) || inAsciiRange(*it, 97, 122) ||
+            inAsciiRange(*it, 95, 95))
+            continue;
+        else
+            return false;
+    }
+    return true;
+}
+
 int main() {
-    char es[2014];
-    std::cin.getline(es, 1024);
-    string a(es);
-    vector<string> input_args = inputHandle(a);;
-    //string real = spaceHandle(a);
+    //runShell();
+    int change_status = changeDir("..");
+
     return 0;
 }
